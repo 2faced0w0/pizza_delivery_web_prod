@@ -39,8 +39,14 @@ export default function PizzaBuilder() {
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      // You can decode JWT or fetch user info here
-      setUser({ token });
+      try {
+        // Decode JWT to get user role
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setUser({ token, role: payload.role, id: payload.id });
+      } catch (err) {
+        console.error('Error decoding token:', err);
+        setUser({ token });
+      }
     }
   }, []);
 
@@ -105,14 +111,15 @@ export default function PizzaBuilder() {
     setCartItems(prev => prev.filter(item => item.id !== itemId));
   }
 
-  function handleMakePayment() {
+  function handlePlaceOrder() {
     if (cartItems.length === 0) {
       alert('Your cart is empty!');
       return;
     }
-    const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-    alert(`Processing payment for Rs. ${total.toFixed(2)}`);
-    // Here you would integrate payment gateway
+    // Save cart to localStorage and open Place Order page in new tab
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    window.open('/place-order', '_blank');
+    setShowCart(false);
   }
 
   function calcUnitPrice() {
@@ -346,7 +353,7 @@ export default function PizzaBuilder() {
                   </span>
                 </div>
                 <button
-                  onClick={handleMakePayment}
+                  onClick={handlePlaceOrder}
                   style={{
                     width: '100%',
                     padding: '14px 24px',
@@ -619,33 +626,59 @@ export default function PizzaBuilder() {
         </div>
         
         {user ? (
-          <button
-            style={{
-              padding: '10px 24px',
-              fontSize: 16,
-              fontWeight: '500',
-              color: '#fff',
-              background: '#d32f2f',
-              border: '2px solid #d32f2f',
-              borderRadius: 6,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={e => {
-              e.target.style.background = '#b71c1c';
-              e.target.style.borderColor = '#b71c1c';
-            }}
-            onMouseLeave={e => {
-              e.target.style.background = '#d32f2f';
-              e.target.style.borderColor = '#d32f2f';
-            }}
-            onClick={() => {
-              localStorage.removeItem('authToken');
-              setUser(null);
-            }}
-          >
-            Logout
-          </button>
+          <>
+            <button
+              style={{
+                padding: '10px 24px',
+                fontSize: 16,
+                fontWeight: '500',
+                color: '#fff',
+                background: '#1976d2',
+                border: '2px solid #1976d2',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.target.style.background = '#1565c0';
+                e.target.style.borderColor = '#1565c0';
+              }}
+              onMouseLeave={e => {
+                e.target.style.background = '#1976d2';
+                e.target.style.borderColor = '#1976d2';
+              }}
+              onClick={() => window.open(user.role === 'admin' ? '/admin' : '/my-orders', '_blank')}
+            >
+              {user.role === 'admin' ? 'My Store' : 'My Orders'}
+            </button>
+            <button
+              style={{
+                padding: '10px 24px',
+                fontSize: 16,
+                fontWeight: '500',
+                color: '#fff',
+                background: '#d32f2f',
+                border: '2px solid #d32f2f',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.target.style.background = '#b71c1c';
+                e.target.style.borderColor = '#b71c1c';
+              }}
+              onMouseLeave={e => {
+                e.target.style.background = '#d32f2f';
+                e.target.style.borderColor = '#d32f2f';
+              }}
+              onClick={() => {
+                localStorage.removeItem('authToken');
+                setUser(null);
+              }}
+            >
+              Logout
+            </button>
+          </>
         ) : (
           <>
             <button

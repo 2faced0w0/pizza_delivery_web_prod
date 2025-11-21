@@ -30,7 +30,15 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
       
       if (response.token) {
         localStorage.setItem('authToken', response.token);
-        if (onAuthSuccess) onAuthSuccess(response);
+        // Decode JWT to get user role
+        try {
+          const payload = JSON.parse(atob(response.token.split('.')[1]));
+          const userData = { token: response.token, role: payload.role, id: payload.id };
+          if (onAuthSuccess) onAuthSuccess(userData);
+        } catch (err) {
+          console.error('Error decoding token:', err);
+          if (onAuthSuccess) onAuthSuccess(response);
+        }
       }
       
       if (onClose) onClose();

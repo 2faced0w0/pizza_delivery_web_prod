@@ -23,13 +23,13 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', authRequired, adminRequired, async (req, res, next) => {
   try {
-    const { name, description, category, priceRegular, priceMedium, priceLarge, imgUrl } = req.body;
-    if (!name || !category || !priceRegular || !priceMedium || !priceLarge) {
+    const { name, description, category, price_regular, price_medium, price_large, img_url } = req.body;
+    if (!name || !category || !price_regular || !price_medium || !price_large) {
       return res.status(400).json({ error: 'Name, category, and all three prices required' });
     }
     await query(
       'INSERT INTO pizzas(name, description, category, price_regular, price_medium, price_large, img_url) VALUES($1,$2,$3,$4,$5,$6,$7)', 
-      [name, description || '', category, priceRegular, priceMedium, priceLarge, imgUrl || '']
+      [name, description || '', category, price_regular, price_medium, price_large, img_url || '']
     );
     res.status(201).json({ message: 'Created' });
   } catch (e) { next(e); }
@@ -37,12 +37,19 @@ router.post('/', authRequired, adminRequired, async (req, res, next) => {
 
 router.patch('/:id', authRequired, adminRequired, async (req, res, next) => {
   try {
-    const { name, description, category, priceRegular, priceMedium, priceLarge, imgUrl } = req.body;
+    const { name, description, category, price_regular, price_medium, price_large, img_url } = req.body;
     await query(
       'UPDATE pizzas SET name=COALESCE($2,name), description=COALESCE($3,description), category=COALESCE($4,category), price_regular=COALESCE($5,price_regular), price_medium=COALESCE($6,price_medium), price_large=COALESCE($7,price_large), img_url=COALESCE($8,img_url) WHERE pizza_id=$1', 
-      [req.params.id, name, description, category, priceRegular, priceMedium, priceLarge, imgUrl]
+      [req.params.id, name, description, category, price_regular, price_medium, price_large, img_url]
     );
     res.json({ message: 'Updated' });
+  } catch (e) { next(e); }
+});
+
+router.delete('/:id', authRequired, adminRequired, async (req, res, next) => {
+  try {
+    await query('DELETE FROM pizzas WHERE pizza_id=$1', [req.params.id]);
+    res.json({ message: 'Deleted' });
   } catch (e) { next(e); }
 });
 
