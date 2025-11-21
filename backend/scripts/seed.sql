@@ -32,3 +32,4 @@ INSERT INTO toppings (name, price) VALUES
 ('Fresh Garlic', 29.00),
 ('Olives', 39.00),
 ('Jalapenos', 29.00);
+
