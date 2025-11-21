@@ -1,0 +1,19 @@
+{
+  "name": "pizza_delivery_web_prod",
+  "version": "1.0.0",
+  "description": "This is a pizza ordering web app",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2faced0w0/pizza_delivery_web_prod.git"
+  },
+  "author": "2faced0w0",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/2faced0w0/pizza_delivery_web_prod/issues"
+  },
+  "homepage": "https://github.com/2faced0w0/pizza_delivery_web_prod#readme"
+}

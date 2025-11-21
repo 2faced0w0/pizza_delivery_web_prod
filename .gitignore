@@ -1,0 +1,7 @@
+FullStackAssignment.pdf
+DEVELOPMENT_AND_DEployment_GUIDE.md
+backend/node_modules/
+frontend/node_modules/
+.env
+backend/scripts/schema.sql
+backend/scripts/seed.sql

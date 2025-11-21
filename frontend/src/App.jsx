@@ -1,26 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { api } from './api.js';
+import React from 'react';
+import PizzaBuilder from './PizzaBuilder.jsx';
 
 export default function App() {
-  const [pizzas, setPizzas] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    api.get('/pizzas').then(r => setPizzas(r)).finally(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
-
   return (
-    <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h1>Pizza Menu</h1>
-      <ul>
-        {pizzas.map(p => (
-          <li key={p.id}>
-            <strong>{p.name}</strong> - ${p.base_price} {p.description && <span>- {p.description}</span>}
-          </li>
-        ))}
-      </ul>
+    <div>
+      <header style={{ padding: 12, background: '#fafafa', borderBottom: '1px solid #eee' }}>
+        <h1 style={{textAlign: 'center', margin: 0, fontFamily: 'sans-serif' }}>Pizza Builder</h1>
+      </header>
+      <main>
+        <PizzaBuilder />
+      </main>
     </div>
   );
 }

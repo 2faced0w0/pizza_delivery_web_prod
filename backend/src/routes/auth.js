@@ -1,0 +1,32 @@
+import express from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { query } from '../db.js';
+import { config } from '../config.js';
+
+const router = express.Router();
+
+router.post('/register', async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const hash = await bcrypt.hash(password, 10);
+    await query('INSERT INTO users(email, password_hash, role, created_at) VALUES($1,$2,$3, NOW())', [email, hash, 'user']);
+    return res.status(201).json({ message: 'Registered' });
+  } catch (e) { next(e); }
+});
+
+router.post('/login', async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const result = await query('SELECT id, password_hash, role FROM users WHERE email=$1', [email]);
+    if (result.rowCount === 0) return res.status(401).json({ error: 'Invalid credentials' });
+    const user = result.rows[0];
+    const ok = await bcrypt.compare(password, user.password_hash);
+    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+    const token = jwt.sign({ id: user.id, role: user.role }, config.jwtSecret, { expiresIn: '45m' });
+    return res.json({ token });
+  } catch (e) { next(e); }
+});
+
+export default router;
