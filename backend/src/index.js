@@ -22,6 +22,7 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
+// API routes
 app.use('/auth', authRoutes);
 app.use('/pizzas', pizzaRoutes);
 app.use('/toppings', toppingsRoutes);
@@ -29,7 +30,8 @@ app.use('/orders', orderRoutes);
 
 // Serve static frontend files in production
 if (config.nodeEnv === 'production') {
-  const publicPath = path.join(__dirname, '..', '..', 'public');
+  const publicPath = path.join(__dirname, '..', 'public');
+  console.log('Serving static files from:', publicPath);
   app.use(express.static(publicPath));
   
   // Serve index.html for all non-API routes (SPA routing)
