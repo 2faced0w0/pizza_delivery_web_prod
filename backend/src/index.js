@@ -42,8 +42,11 @@ app.use(errorMiddleware);
 
 const start = async () => {
   try {
+    console.log('Environment:', config.nodeEnv);
+    console.log('Attempting to connect to database...');
+    console.log('DB URL (masked):', config.dbUrl.replace(/:[^:@]+@/, ':****@'));
     await db.connect();
-    console.log('DB connected');
+    console.log('DB connected successfully');
     app.listen(config.port, () => console.log(`Backend listening on ${config.port}`));
   } catch (err) {
     console.error('Startup error', err);
