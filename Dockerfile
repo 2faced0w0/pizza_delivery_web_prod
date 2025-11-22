@@ -25,8 +25,9 @@ WORKDIR /app
 COPY backend/package*.json ./
 RUN npm install --production
 
-# Copy backend source
-COPY backend/ ./
+# Copy backend source (excluding .env files)
+COPY backend/src ./src
+COPY backend/scripts ./scripts
 
 # Copy built frontend from previous stage
 COPY --from=frontend-builder /app/frontend/dist ./public
