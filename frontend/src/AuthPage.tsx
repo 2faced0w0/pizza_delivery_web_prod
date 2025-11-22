@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
-import { api } from './api.js';
+import { useState, FormEvent } from 'react';
+import { api } from './api';
 
-export default function AuthPage({ onClose, onAuthSuccess }) {
+interface AuthPageProps {
+  onClose?: () => void;
+  onAuthSuccess?: (userData: any) => void;
+}
+
+export default function AuthPage({ onClose, onAuthSuccess }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -9,7 +14,7 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -42,7 +47,7 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
       }
       
       if (onClose) onClose();
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || 'Authentication failed. Please try again.');
     } finally {
       setLoading(false);
@@ -121,8 +126,8 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
                 transition: 'border-color 0.2s',
                 boxSizing: 'border-box'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#1976d2'}
-              onBlur={(e) => e.target.style.borderColor = '#ddd'}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#1976d2'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
             />
           </div>
 
@@ -145,8 +150,8 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
                 transition: 'border-color 0.2s',
                 boxSizing: 'border-box'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#1976d2'}
-              onBlur={(e) => e.target.style.borderColor = '#ddd'}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#1976d2'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
             />
           </div>
 
@@ -170,8 +175,8 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
                   transition: 'border-color 0.2s',
                   boxSizing: 'border-box'
                 }}
-                onFocus={(e) => e.target.style.borderColor = '#1976d2'}
-                onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                onFocus={(e) => e.currentTarget.style.borderColor = '#1976d2'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#ddd'}
               />
             </div>
           )}
@@ -205,8 +210,8 @@ export default function AuthPage({ onClose, onAuthSuccess }) {
               transition: 'background 0.2s',
               marginBottom: 16
             }}
-            onMouseEnter={(e) => { if (!loading) e.target.style.background = '#1565c0'; }}
-            onMouseLeave={(e) => { if (!loading) e.target.style.background = '#1976d2'; }}
+            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#1565c0'; }}
+            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#1976d2'; }}
           >
             {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Sign Up')}
           </button>

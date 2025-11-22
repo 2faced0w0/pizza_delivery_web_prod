@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage
+.nyc_output
+tests
+*.test.js
+
+# IDEs and editors
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files (will be provided at runtime)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+docs
+
+# Misc
+*.log
+.eslintrc*
+.prettierrc*
+nodemon.json

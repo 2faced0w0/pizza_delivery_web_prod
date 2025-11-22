@@ -5,3 +5,6 @@ frontend/node_modules/
 .env
 backend/scripts/schema.sql
 backend/scripts/seed.sql
+BUILD.md
+DEPLOYMENT.md
+backend/.env.example

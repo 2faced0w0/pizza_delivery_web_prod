@@ -1,9 +1,8 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import PizzaBuilder from './PizzaBuilder.jsx';
-import MyOrders from './user/MyOrders.jsx';
-import AdminDashboard from './admin/AdminDashboard.jsx';
-import PlaceOrder from './user/PlaceOrder.jsx';
+import PizzaBuilder from './PizzaBuilder';
+import MyOrders from './user/MyOrders';
+import AdminDashboard from './admin/AdminDashboard';
+import PlaceOrder from './user/PlaceOrder';
 
 export default function App() {
   return (

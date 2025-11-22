@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api.js';
+import { api } from '../api';
+import { CartItem } from '../types';
 
 export default function PlaceOrder() {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState([]);
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [deliveryAddress, setDeliveryAddress] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     // Get cart items from localStorage
@@ -80,7 +81,7 @@ export default function PlaceOrder() {
     }
   }
 
-  function removeFromCart(itemId) {
+  function removeFromCart(itemId: number) {
     const updatedCart = cartItems.filter(item => item.id !== itemId);
     setCartItems(updatedCart);
     localStorage.setItem('cartItems', JSON.stringify(updatedCart));
@@ -141,8 +142,8 @@ export default function PlaceOrder() {
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={e => e.target.style.background = '#5568d3'}
-                onMouseLeave={e => e.target.style.background = '#667eea'}
+                onMouseEnter={e => e.currentTarget.style.background = '#5568d3'}
+                onMouseLeave={e => e.currentTarget.style.background = '#667eea'}
               >
                 Back to Home
               </button>
@@ -220,8 +221,8 @@ export default function PlaceOrder() {
                           cursor: 'pointer',
                           transition: 'all 0.2s ease'
                         }}
-                        onMouseEnter={e => e.target.style.background = '#ffebee'}
-                        onMouseLeave={e => e.target.style.background = '#fff'}
+                        onMouseEnter={e => e.currentTarget.style.background = '#ffebee'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#fff'}
                       >
                         Remove Item
                       </button>
@@ -268,8 +269,8 @@ export default function PlaceOrder() {
                       transition: 'border-color 0.2s ease',
                       boxSizing: 'border-box'
                     }}
-                    onFocus={e => e.target.style.borderColor = '#667eea'}
-                    onBlur={e => e.target.style.borderColor = '#e0e0e0'}
+                    onFocus={e => e.currentTarget.style.borderColor = '#667eea'}
+                    onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
                   />
                 </div>
 
@@ -300,8 +301,8 @@ export default function PlaceOrder() {
                       transition: 'border-color 0.2s ease',
                       boxSizing: 'border-box'
                     }}
-                    onFocus={e => e.target.style.borderColor = '#667eea'}
-                    onBlur={e => e.target.style.borderColor = '#e0e0e0'}
+                    onFocus={e => e.currentTarget.style.borderColor = '#667eea'}
+                    onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
                   />
                 </div>
               </div>
@@ -352,14 +353,14 @@ export default function PlaceOrder() {
                   }}
                   onMouseEnter={e => {
                     if (!loading) {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.3)';
                     }
                   }}
                   onMouseLeave={e => {
                     if (!loading) {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
                     }
                   }}
                 >
@@ -382,8 +383,8 @@ export default function PlaceOrder() {
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={e => e.target.style.background = '#e0e0e0'}
-                onMouseLeave={e => e.target.style.background = '#f0f0f0'}
+                onMouseEnter={e => e.currentTarget.style.background = '#e0e0e0'}
+                onMouseLeave={e => e.currentTarget.style.background = '#f0f0f0'}
               >
                 ← Back to Shopping
               </button>

@@ -1,19 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Order, Pizza, Topping } from '../types';
+
+interface NewPizza {
+  name: string;
+  description: string;
+  category: 'Veg' | 'Non-Veg';
+  price_regular: string;
+  price_medium: string;
+  price_large: string;
+  img_url: string;
+}
+
+interface NewTopping {
+  name: string;
+  price: string;
+}
+
+interface NewAdmin {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('orders');
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('orders');
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Orders state
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   // Pizzas state
-  const [pizzas, setPizzas] = useState([]);
-  const [showAddPizza, setShowAddPizza] = useState(false);
-  const [newPizza, setNewPizza] = useState({
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [showAddPizza, setShowAddPizza] = useState<boolean>(false);
+  const [newPizza, setNewPizza] = useState<NewPizza>({
     name: '',
     description: '',
     category: 'Veg',
@@ -24,16 +45,15 @@ export default function AdminDashboard() {
   });
 
   // Toppings state
-  const [toppings, setToppings] = useState([]);
-  const [showAddTopping, setShowAddTopping] = useState(false);
-  const [newTopping, setNewTopping] = useState({
+  const [toppings, setToppings] = useState<Topping[]>([]);
+  const [showAddTopping, setShowAddTopping] = useState<boolean>(false);
+  const [newTopping, setNewTopping] = useState<NewTopping>({
     name: '',
     price: ''
   });
 
   // Admin state
-  const [showAddAdmin, setShowAddAdmin] = useState(false);
-  const [newAdmin, setNewAdmin] = useState({
+  const [newAdmin, setNewAdmin] = useState<NewAdmin>({
     email: '',
     password: '',
     confirmPassword: ''
@@ -46,14 +66,13 @@ export default function AdminDashboard() {
       return;
     }
     // You could decode JWT to verify admin role here
-    setUser({ token });
     
     fetchOrders();
     fetchPizzas();
     fetchToppings();
   }, []);
 
-  async function fetchOrders() {
+  async function fetchOrders(): Promise<void> {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
@@ -71,7 +90,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function fetchPizzas() {
+  async function fetchPizzas(): Promise<void> {
     try {
       const response = await fetch('http://localhost:4000/pizzas');
       if (response.ok) {
@@ -83,7 +102,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function fetchToppings() {
+  async function fetchToppings(): Promise<void> {
     try {
       const response = await fetch('http://localhost:4000/toppings');
       if (response.ok) {
@@ -95,7 +114,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleAddPizza(e) {
+  async function handleAddPizza(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     try {
       const token = localStorage.getItem('authToken');
@@ -131,7 +150,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleDeletePizza(pizzaId) {
+  async function handleDeletePizza(pizzaId: number): Promise<void> {
     if (!confirm('Are you sure you want to delete this pizza?')) return;
     
     try {
@@ -153,7 +172,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleAddTopping(e) {
+  async function handleAddTopping(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     try {
       const token = localStorage.getItem('authToken');
@@ -181,7 +200,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleDeleteTopping(toppingId) {
+  async function handleDeleteTopping(toppingId: number): Promise<void> {
     if (!confirm('Are you sure you want to delete this topping?')) return;
     
     try {
@@ -203,7 +222,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleAddAdmin(e) {
+  async function handleAddAdmin(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     
     if (newAdmin.password !== newAdmin.confirmPassword) {
@@ -227,7 +246,6 @@ export default function AdminDashboard() {
 
       if (response.ok) {
         alert('Admin user created successfully!');
-        setShowAddAdmin(false);
         setNewAdmin({ email: '', password: '', confirmPassword: '' });
       } else {
         const error = await response.json();
@@ -239,7 +257,7 @@ export default function AdminDashboard() {
     }
   }
 
-  async function handleOrderAction(orderId, action) {
+  async function handleOrderAction(orderId: number, action: string): Promise<void> {
     try {
       const token = localStorage.getItem('authToken');
       const status = action === 'accept' ? 'confirmed' : 'cancelled';
@@ -265,7 +283,7 @@ export default function AdminDashboard() {
     }
   }
 
-  function formatDate(dateString) {
+  function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', {
       year: 'numeric',
@@ -276,7 +294,7 @@ export default function AdminDashboard() {
     });
   }
 
-  const tabStyle = (isActive) => ({
+  const tabStyle = (isActive: boolean) => ({
     padding: '12px 24px',
     fontSize: 16,
     fontWeight: isActive ? '600' : '500',
@@ -531,7 +549,7 @@ export default function AdminDashboard() {
                       <input
                         required
                         value={newPizza.name}
-                        onChange={e => setNewPizza({ ...newPizza, name: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, name: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -548,7 +566,7 @@ export default function AdminDashboard() {
                       <select
                         required
                         value={newPizza.category}
-                        onChange={e => setNewPizza({ ...newPizza, category: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, category: e.currentTarget.value as 'Veg' | 'Non-Veg' })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -567,7 +585,7 @@ export default function AdminDashboard() {
                       </label>
                       <textarea
                         value={newPizza.description}
-                        onChange={e => setNewPizza({ ...newPizza, description: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, description: e.currentTarget.value })}
                         rows={3}
                         style={{
                           width: '100%',
@@ -588,7 +606,7 @@ export default function AdminDashboard() {
                         type="number"
                         step="0.01"
                         value={newPizza.price_regular}
-                        onChange={e => setNewPizza({ ...newPizza, price_regular: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, price_regular: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -607,7 +625,7 @@ export default function AdminDashboard() {
                         type="number"
                         step="0.01"
                         value={newPizza.price_medium}
-                        onChange={e => setNewPizza({ ...newPizza, price_medium: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, price_medium: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -626,7 +644,7 @@ export default function AdminDashboard() {
                         type="number"
                         step="0.01"
                         value={newPizza.price_large}
-                        onChange={e => setNewPizza({ ...newPizza, price_large: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, price_large: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -643,7 +661,7 @@ export default function AdminDashboard() {
                       <input
                         type="url"
                         value={newPizza.img_url}
-                        onChange={e => setNewPizza({ ...newPizza, img_url: e.target.value })}
+                        onChange={e => setNewPizza({ ...newPizza, img_url: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -734,7 +752,7 @@ export default function AdminDashboard() {
                       <div><strong>Large:</strong> Rs. {Number(pizza.price_large).toFixed(2)}</div>
                     </div>
                     <button
-                      onClick={() => handleDeletePizza(pizza.pizza_id)}
+                      onClick={() => handleDeletePizza(pizza.pizza_id!)}
                       style={{
                         marginTop: 'auto',
                         padding: '8px 16px',
@@ -799,7 +817,7 @@ export default function AdminDashboard() {
                       <input
                         required
                         value={newTopping.name}
-                        onChange={e => setNewTopping({ ...newTopping, name: e.target.value })}
+                        onChange={e => setNewTopping({ ...newTopping, name: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -818,7 +836,7 @@ export default function AdminDashboard() {
                         type="number"
                         step="0.01"
                         value={newTopping.price}
-                        onChange={e => setNewTopping({ ...newTopping, price: e.target.value })}
+                        onChange={e => setNewTopping({ ...newTopping, price: e.currentTarget.value })}
                         style={{
                           width: '100%',
                           padding: '10px 12px',
@@ -886,7 +904,7 @@ export default function AdminDashboard() {
                       <td style={{ padding: 16 }}>Rs. {Number(topping.price).toFixed(2)}</td>
                       <td style={{ padding: 16, textAlign: 'right' }}>
                         <button
-                          onClick={() => handleDeleteTopping(topping.topping_id)}
+                          onClick={() => handleDeleteTopping(topping.topping_id!)}
                           style={{
                             padding: '6px 16px',
                             fontSize: 14,
@@ -930,7 +948,7 @@ export default function AdminDashboard() {
                     required
                     type="email"
                     value={newAdmin.email}
-                    onChange={e => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                    onChange={e => setNewAdmin({ ...newAdmin, email: e.currentTarget.value })}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -949,7 +967,7 @@ export default function AdminDashboard() {
                     type="password"
                     minLength={6}
                     value={newAdmin.password}
-                    onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                    onChange={e => setNewAdmin({ ...newAdmin, password: e.currentTarget.value })}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -968,7 +986,7 @@ export default function AdminDashboard() {
                     type="password"
                     minLength={6}
                     value={newAdmin.confirmPassword}
-                    onChange={e => setNewAdmin({ ...newAdmin, confirmPassword: e.target.value })}
+                    onChange={e => setNewAdmin({ ...newAdmin, confirmPassword: e.currentTarget.value })}
                     style={{
                       width: '100%',
                       padding: '10px 12px',

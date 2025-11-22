@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { api } from '../api.js';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Order } from '../types';
 
 export default function MyOrders() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  async function fetchOrders() {
+  async function fetchOrders(): Promise<void> {
     try {
       setLoading(true);
       const token = localStorage.getItem('authToken');
@@ -32,7 +32,7 @@ export default function MyOrders() {
         throw new Error('Failed to fetch orders');
       }
 
-      const data = await response.json();
+      const data: Order[] = await response.json();
       setOrders(data);
     } catch (err) {
       console.error('Error fetching orders:', err);
@@ -42,7 +42,7 @@ export default function MyOrders() {
     }
   }
 
-  function formatDate(dateString) {
+  function formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', {
       year: 'numeric',
@@ -53,8 +53,8 @@ export default function MyOrders() {
     });
   }
 
-  function getStatusColor(status) {
-    const colors = {
+  function getStatusColor(status: string): string {
+    const colors: Record<string, string> = {
       'pending': '#ff9800',
       'confirmed': '#2196f3',
       'preparing': '#9c27b0',
@@ -65,7 +65,7 @@ export default function MyOrders() {
     return colors[status] || '#666';
   }
 
-  function getStatusLabel(status) {
+  function getStatusLabel(status: string): string {
     return status.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
@@ -112,13 +112,13 @@ export default function MyOrders() {
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
-            onMouseEnter={e => {
-              e.target.style.background = '#1565c0';
-              e.target.style.borderColor = '#1565c0';
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#1565c0';
+              e.currentTarget.style.borderColor = '#1565c0';
             }}
-            onMouseLeave={e => {
-              e.target.style.background = '#1976d2';
-              e.target.style.borderColor = '#1976d2';
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#1976d2';
+              e.currentTarget.style.borderColor = '#1976d2';
             }}
           >
             ← Back to Home
@@ -160,10 +160,10 @@ export default function MyOrders() {
                     border: '1px solid #ddd',
                     transition: 'box-shadow 0.2s ease'
                   }}
-                  onMouseEnter={e => {
+                  onMouseEnter={(e) => {
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
                   }}
-                  onMouseLeave={e => {
+                  onMouseLeave={(e) => {
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >

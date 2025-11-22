@@ -1,26 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { api } from './api.js';
-import AuthPage from './AuthPage.jsx';
+import { useEffect, useState } from 'react';
+import { api } from './api';
+import AuthPage from './AuthPage';
+import { Pizza, Topping, CartItem, User } from './types';
 
-const CRUST_TYPES = ['Thin crust', 'Fresh pan', 'Hand tossed', 'Cheese Burst'];
-const SIZE_OPTIONS = ['Small', 'Medium', 'Large'];
+const CRUST_TYPES = ['Thin crust', 'Fresh pan', 'Hand tossed', 'Cheese Burst'] as const;
+const SIZE_OPTIONS = ['Small', 'Medium', 'Large'] as const;
+
+type SizeOption = typeof SIZE_OPTIONS[number];
 
 export default function PizzaBuilder() {
-  const [pizzas, setPizzas] = useState([]);
-  const [toppings, setToppings] = useState([]);
-  const [selectedPizza, setSelectedPizza] = useState(null);
-  const [selectedToppings, setSelectedToppings] = useState([]);
-  const [selectedCrust, setSelectedCrust] = useState('Thin crust');
-  const [size, setSize] = useState('Medium');
-  const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [showAuth, setShowAuth] = useState(false);
-  const [user, setUser] = useState(null);
-  const [showCustomization, setShowCustomization] = useState(false);
-  const [customizingPizza, setCustomizingPizza] = useState(null);
-  const [showCart, setShowCart] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [editingCartItem, setEditingCartItem] = useState(null);
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [toppings, setToppings] = useState<Topping[]>([]);
+  const [selectedPizza, setSelectedPizza] = useState<Pizza | null>(null);
+  const [selectedToppings, setSelectedToppings] = useState<Topping[]>([]);
+  const [selectedCrust, setSelectedCrust] = useState<string>('Thin crust');
+  const [size, setSize] = useState<SizeOption>('Medium');
+  const [quantity] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showAuth, setShowAuth] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [showCustomization, setShowCustomization] = useState<boolean>(false);
+  const [customizingPizza, setCustomizingPizza] = useState<Pizza | null>(null);
+  const [showCart, setShowCart] = useState<boolean>(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [editingCartItem, setEditingCartItem] = useState<CartItem | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -50,7 +53,7 @@ export default function PizzaBuilder() {
     }
   }, []);
 
-  function toggleTopping(topping) {
+  function toggleTopping(topping: Topping): void {
     setSelectedToppings(prev => {
       const toppingId = topping.topping_id || topping.id;
       if (prev.find(x => (x.topping_id || x.id) === toppingId)) return prev.filter(x => (x.topping_id || x.id) !== toppingId);
@@ -58,7 +61,7 @@ export default function PizzaBuilder() {
     });
   }
 
-  function openCustomization(pizza) {
+  function openCustomization(pizza: Pizza): void {
     setCustomizingPizza(pizza);
     setSelectedPizza(pizza);
     setSelectedToppings([]);
@@ -66,22 +69,22 @@ export default function PizzaBuilder() {
     setShowCustomization(true);
   }
 
-  function openEditCustomization(cartItem) {
+  function openEditCustomization(cartItem: CartItem): void {
     setCustomizingPizza(cartItem.pizza);
     setSelectedPizza(cartItem.pizza);
     setSelectedToppings(cartItem.selectedToppings);
     setSelectedCrust(cartItem.crust);
-    setSize(cartItem.size);
+    setSize(cartItem.size as SizeOption);
     setEditingCartItem(cartItem);
     setShowCart(false);
     setShowCustomization(true);
   }
 
-  function handleAddToCart() {
+  function handleAddToCart(): void {
     if (!customizingPizza) return;
-    const pizzaId = customizingPizza.pizza_id || customizingPizza.id;
+    // const pizzaId = customizingPizza.pizza_id || customizingPizza.id;
     
-    const cartItem = {
+    const cartItem: CartItem = {
       id: editingCartItem ? editingCartItem.id : Date.now(),
       pizza: customizingPizza,
       crust: selectedCrust,
@@ -107,11 +110,11 @@ export default function PizzaBuilder() {
     setSize('Medium');
   }
 
-  function removeFromCart(itemId) {
+  function removeFromCart(itemId: number): void {
     setCartItems(prev => prev.filter(item => item.id !== itemId));
   }
 
-  function handlePlaceOrder() {
+  function handlePlaceOrder(): void {
     if (cartItems.length === 0) {
       alert('Your cart is empty!');
       return;
@@ -122,9 +125,9 @@ export default function PizzaBuilder() {
     setShowCart(false);
   }
 
-  function calcUnitPrice() {
-    if (!customizingPizza && !selectedPizza) return 0;
+  function calcUnitPrice(): number {
     const pizza = customizingPizza || selectedPizza;
+    if (!pizza) return 0;
     let basePrice = 0;
     if (size === 'Small') basePrice = Number(pizza.price_regular || 0);
     else if (size === 'Medium') basePrice = Number(pizza.price_medium || 0);
@@ -145,7 +148,7 @@ export default function PizzaBuilder() {
   return (
     <div>
       
-      {showAuth && <AuthPage onClose={() => setShowAuth(false)} onAuthSuccess={(data) => setUser(data)} />}
+      {showAuth && <AuthPage onClose={() => setShowAuth(false)} onAuthSuccess={(data: User) => setUser(data)} />}
       
       {/* Cart Summary Sidebar */}
       {showCart && (
@@ -228,7 +231,7 @@ export default function PizzaBuilder() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {cartItems.map((item, index) => (
+                  {cartItems.map((item) => (
                     <div
                       key={item.id}
                       style={{
@@ -294,10 +297,10 @@ export default function PizzaBuilder() {
                             transition: 'all 0.2s ease'
                           }}
                           onMouseEnter={e => {
-                            e.target.style.background = '#e3f2fd';
+                            e.currentTarget.style.background = '#e3f2fd';
                           }}
                           onMouseLeave={e => {
-                            e.target.style.background = '#fff';
+                            e.currentTarget.style.background = '#fff';
                           }}
                         >
                           Customize
@@ -317,10 +320,10 @@ export default function PizzaBuilder() {
                             transition: 'all 0.2s ease'
                           }}
                           onMouseEnter={e => {
-                            e.target.style.background = '#ffebee';
+                            e.currentTarget.style.background = '#ffebee';
                           }}
                           onMouseLeave={e => {
-                            e.target.style.background = '#fff';
+                            e.currentTarget.style.background = '#fff';
                           }}
                         >
                           Remove
@@ -368,14 +371,14 @@ export default function PizzaBuilder() {
                     boxShadow: '0 4px 12px rgba(76,175,80,0.3)'
                   }}
                   onMouseEnter={e => {
-                    e.target.style.background = '#45a049';
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 16px rgba(76,175,80,0.4)';
+                    e.currentTarget.style.background = '#45a049';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 16px rgba(76,175,80,0.4)';
                   }}
                   onMouseLeave={e => {
-                    e.target.style.background = '#4caf50';
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 12px rgba(76,175,80,0.3)';
+                    e.currentTarget.style.background = '#4caf50';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(76,175,80,0.3)';
                   }}
                 >
                   Make Payment
@@ -581,14 +584,14 @@ export default function PizzaBuilder() {
                 boxShadow: '0 4px 12px rgba(175, 76, 79, 0.4)'
               }}
               onMouseEnter={e => {
-                e.target.style.background = '#8b1713ff';
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 16px rgba(175, 76, 79, 0.4)';
+                e.currentTarget.style.background = '#8b1713ff';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(175, 76, 79, 0.4)';
               }}
               onMouseLeave={e => {
-                e.target.style.background = '#e43232e9';
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 12px rgba(175, 76, 79, 0.4)';
+                e.currentTarget.style.background = '#e43232e9';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(175, 76, 79, 0.4)';
               }}
             >
               <img 
@@ -640,12 +643,12 @@ export default function PizzaBuilder() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={e => {
-                e.target.style.background = '#1565c0';
-                e.target.style.borderColor = '#1565c0';
+                e.currentTarget.style.background = '#1565c0';
+                e.currentTarget.style.borderColor = '#1565c0';
               }}
               onMouseLeave={e => {
-                e.target.style.background = '#1976d2';
-                e.target.style.borderColor = '#1976d2';
+                e.currentTarget.style.background = '#1976d2';
+                e.currentTarget.style.borderColor = '#1976d2';
               }}
               onClick={() => window.open(user.role === 'admin' ? '/admin' : '/my-orders', '_blank')}
             >
@@ -664,12 +667,12 @@ export default function PizzaBuilder() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={e => {
-                e.target.style.background = '#b71c1c';
-                e.target.style.borderColor = '#b71c1c';
+                e.currentTarget.style.background = '#b71c1c';
+                e.currentTarget.style.borderColor = '#b71c1c';
               }}
               onMouseLeave={e => {
-                e.target.style.background = '#d32f2f';
-                e.target.style.borderColor = '#d32f2f';
+                e.currentTarget.style.background = '#d32f2f';
+                e.currentTarget.style.borderColor = '#d32f2f';
               }}
               onClick={() => {
                 localStorage.removeItem('authToken');
@@ -694,12 +697,12 @@ export default function PizzaBuilder() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={e => {
-                e.target.style.background = '#1976d2';
-                e.target.style.color = '#fff';
+                e.currentTarget.style.background = '#1976d2';
+                e.currentTarget.style.color = '#fff';
               }}
               onMouseLeave={e => {
-                e.target.style.background = '#fff';
-                e.target.style.color = '#1976d2';
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#1976d2';
               }}
               onClick={() => setShowAuth(true)}
             >
@@ -718,12 +721,12 @@ export default function PizzaBuilder() {
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={e => {
-                e.target.style.background = '#1565c0';
-                e.target.style.borderColor = '#1565c0';
+                e.currentTarget.style.background = '#1565c0';
+                e.currentTarget.style.borderColor = '#1565c0';
               }}
               onMouseLeave={e => {
-                e.target.style.background = '#1976d2';
-                e.target.style.borderColor = '#1976d2';
+                e.currentTarget.style.background = '#1976d2';
+                e.currentTarget.style.borderColor = '#1976d2';
               }}
               onClick={() => setShowAuth(true)}
             >
@@ -766,16 +769,16 @@ export default function PizzaBuilder() {
                 }}
                 onMouseEnter={e => {
                   if (!isSelected) {
-                    e.target.style.background = '#cb780a6c';
-                    e.target.style.borderColor = '#999';
-                    e.target.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.background = '#cb780a6c';
+                    e.currentTarget.style.borderColor = '#999';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
                   }
                 }}
                 onMouseLeave={e => {
                   if (!isSelected) {
-                    e.target.style.background = '#fff';
-                    e.target.style.borderColor = '#ccc';
-                    e.target.style.transform = 'translateY(0)';
+                    e.currentTarget.style.background = '#fff';
+                    e.currentTarget.style.borderColor = '#ccc';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }
                 }}
               >
@@ -820,12 +823,12 @@ export default function PizzaBuilder() {
                 position: 'relative'
               }}
               onMouseEnter={e => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.96)';
-                e.target.style.transform = 'scale(1.05)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.96)';
+                e.currentTarget.style.transform = 'scale(1.05)';
               }}
               onMouseLeave={e => {
-                e.target.style.background = '#ffffff04';
-                e.target.style.transform = 'scale(1)';
+                e.currentTarget.style.background = '#ffffff04';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
               <label htmlFor="cart-button">My Cart </label>
@@ -964,12 +967,12 @@ export default function PizzaBuilder() {
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={e => {
-                          e.target.style.background = '#1aa34a';
-                          e.target.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.background = '#1aa34a';
+                          e.currentTarget.style.transform = 'scale(1.05)';
                         }}
                         onMouseLeave={e => {
-                          e.target.style.background = '#21d04ac4';
-                          e.target.style.transform = 'scale(1)';
+                          e.currentTarget.style.background = '#21d04ac4';
+                          e.currentTarget.style.transform = 'scale(1)';
                         }}
                       >
                         <img 
@@ -1063,12 +1066,12 @@ export default function PizzaBuilder() {
                           transition: 'all 0.2s ease'
                         }}
                         onMouseEnter={e => {
-                          e.target.style.background = '#c31a0fff';
-                          e.target.style.transform = 'scale(1.05)';
+                          e.currentTarget.style.background = '#c31a0fff';
+                          e.currentTarget.style.transform = 'scale(1.05)';
                         }}
                         onMouseLeave={e => {
-                          e.target.style.background = '#f53412ff';
-                          e.target.style.transform = 'scale(1)';
+                          e.currentTarget.style.background = '#f53412ff';
+                          e.currentTarget.style.transform = 'scale(1)';
                         }}
                       >
                         <img 
