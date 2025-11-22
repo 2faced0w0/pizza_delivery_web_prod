@@ -6,13 +6,13 @@
 cd backend
 npm install
 set DATABASE_URL=postgresql://postgres:postgres@localhost:5425/pizzastore
-set JWT_SECRET=replace_with_secure_random
+set JWT_SECRET=replace_with_actual
 set PORT=4000
 docker run -d --name pizza-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=pizzastore -p 5425:5432 -v pizzastore_data:/var/lib/postgresql/data postgres:16
 nodemon src/index.js
 ```
 
-Apply schema (example minimal SQL):
+DB schema (minimal SQL):
 
 ```sql
 CREATE TABLE users (
@@ -87,5 +87,3 @@ Open <http://localhost:5173>
 ## Pricing
 Calculated server-side using size multiplier + toppings.
 
-## Next Steps
-Provide official PDF to reconcile any spec differences.
