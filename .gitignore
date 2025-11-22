@@ -8,3 +8,5 @@ backend/scripts/seed.sql
 BUILD.md
 DEPLOYMENT.md
 backend/.env.example
+RENDER_DEPLOYMENT.md
+temp/DOCKER_DEPLOYMENT.md

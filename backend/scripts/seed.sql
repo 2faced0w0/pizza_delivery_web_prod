@@ -33,3 +33,6 @@ INSERT INTO toppings (name, price) VALUES
 ('Olives', 39.00),
 ('Jalapenos', 29.00);
 
+INSERT INTO users (email, user_pass, role, created_at) VALUES
+('admin@123.com', '$2b$12$C.YUuZzgsJvXVMyvjxZGTOedYC028eyWP.aDazuaN5XMoMZa6KLzW', 'admin', NOW()),
+('user123@gmail.com', '$2b$10$z95fz6ue0ocxsV4y.Np8W.Bfb/3MlGdTXFT0Z6u5LK3G0pNcEGUuO', 'user', NOW());

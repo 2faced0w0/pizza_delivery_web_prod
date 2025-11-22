@@ -1,5 +1,5 @@
-// Use environment variable or fallback to localhost for development
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+// Use environment variable or fallback to same origin for production (empty string = relative URLs)
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 
 interface RequestOptions extends RequestInit {
   headers?: Record<string, string>;
