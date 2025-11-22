@@ -1,5 +1,7 @@
 # Pizza Delivery Web (MVP)
 
+deployed @ https://pizza-delivery-web-prod.onrender.com/
+
 ## Backend Quick Start
 
 ```cmd
