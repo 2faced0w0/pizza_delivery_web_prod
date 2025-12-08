@@ -1,26 +1,24 @@
 # Project Update:
 ### Backend
   #### Error Management:
-    Implemented a centralized and standardized error-handling mechanism. A common error manager will help ensure consistent responses across all endpoints.
+  Implemented a centralized and standardized error-handling mechanism. A common error manager will help ensure consistent responses across all endpoints.
   
   #### ORM Usage:
-    Used Sequelize (or another ORM) to streamline database operations. This will improve code readability, reduce raw SQL repetition, and simplify validations and relationships.
+  Used Sequelize (or another ORM) to streamline database operations. This will improve code readability, reduce raw SQL repetition, and simplify validations and relationships.
   
   #### Helper & Utility Functions:
-    Created common helpers and utility modules for recurring logic (e.g., response formatting, database queries, validations). This will significantly improve the code’s maintainability and readability.
+  Created common helpers and utility modules for recurring logic (e.g., response formatting, database queries, validations). This will significantly improve the code’s maintainability and readability.
 
 ### Frontend
   #### UI Modernization:
-    The current UI has been enhanced with modern design principles to improve user experience and align it with current industry standards.
+  The current UI has been enhanced with modern design principles to improve user experience and align it with current industry standards.
   
   #### Filtering & User Experience:
-    Added more filtering options and user-friendly components to make the interface more intuitive.
+  Added more filtering options and user-friendly components to make the interface more intuitive.
   
   #### API Layer Improvements:
-    Used a common Axios instance with interceptors for handling tokens, errors, and base URLs consistently.
+  Used a common Axios instance with interceptors for handling tokens, errors, and base URLs consistently.
   
-  #### Component Structure:
-    Break down large components into smaller, reusable units. This will improve readability, performance, and maintainability.
 
 
 ## Frontend Docker Deployment
