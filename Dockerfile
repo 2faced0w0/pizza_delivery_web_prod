@@ -4,14 +4,14 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
-# Copy frontend package files
-COPY frontend/package*.json ./
+# Copy frontend package files (new path)
+COPY frontend/pizza_frontend/package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy frontend source
-COPY frontend/ ./
+# Copy frontend source (new path)
+COPY frontend/pizza_frontend/ ./
 
 # Build frontend for production
 RUN npm run build
