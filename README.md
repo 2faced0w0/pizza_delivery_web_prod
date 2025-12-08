@@ -1,3 +1,28 @@
+# Project Update:
+### Backend
+  #### Error Management:
+    Implemented a centralized and standardized error-handling mechanism. A common error manager will help ensure consistent responses across all endpoints.
+  
+  #### ORM Usage:
+    Used Sequelize (or another ORM) to streamline database operations. This will improve code readability, reduce raw SQL repetition, and simplify validations and relationships.
+  
+  #### Helper & Utility Functions:
+    Created common helpers and utility modules for recurring logic (e.g., response formatting, database queries, validations). This will significantly improve the code’s maintainability and readability.
+
+### Frontend
+  #### UI Modernization:
+    The current UI has been enhanced with modern design principles to improve user experience and align it with current industry standards.
+  
+  #### Filtering & User Experience:
+    Added more filtering options and user-friendly components to make the interface more intuitive.
+  
+  #### API Layer Improvements:
+    Used a common Axios instance with interceptors for handling tokens, errors, and base URLs consistently.
+  
+  #### Component Structure:
+    Break down large components into smaller, reusable units. This will improve readability, performance, and maintainability.
+
+
 ## Frontend Docker Deployment
 
 - Build the image:
@@ -39,53 +64,7 @@ nodemon src/index.js
 
 DB schema (minimal SQL):
 
-```sql
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  role TEXT NOT NULL,
-  created_at TIMESTAMP NOT NULL
-);
-CREATE TABLE pizzas (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT,
-  image_url TEXT,
-  base_price NUMERIC NOT NULL,
-  is_active BOOLEAN NOT NULL,
-  created_at TIMESTAMP NOT NULL
-);
-CREATE TABLE toppings (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
-  price NUMERIC NOT NULL,
-  is_active BOOLEAN NOT NULL
-);
-CREATE TABLE orders (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id),
-  status TEXT NOT NULL,
-  total_amount NUMERIC NOT NULL,
-  address_text TEXT,
-  created_at TIMESTAMP NOT NULL,
-  updated_at TIMESTAMP NOT NULL
-);
-CREATE TABLE order_items (
-  id SERIAL PRIMARY KEY,
-  order_id INTEGER REFERENCES orders(id),
-  pizza_id INTEGER REFERENCES pizzas(id),
-  size TEXT NOT NULL,
-  crust TEXT,
-  quantity INTEGER NOT NULL,
-  unit_price NUMERIC NOT NULL
-);
-CREATE TABLE order_item_toppings (
-  id SERIAL PRIMARY KEY,
-  order_item_id INTEGER REFERENCES order_items(id),
-  topping_id INTEGER REFERENCES toppings(id)
-);
-```
+
 
 Seed sample data:
 
@@ -110,7 +89,7 @@ Open <http://localhost:5173>
 6. Update status (admin): PATCH /admin/orders/:id/status {status}
 
 ## Pricing
-Calculated server-side using size multiplier + toppings.
+Calculated client-side using size multiplier + toppings.
 
-"create a version branch, a rollback checkpoint and commit and push all code to main branch with commit message "frontend revamped! Update details posted under README.md"
+
 
