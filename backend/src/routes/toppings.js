@@ -1,31 +1,33 @@
 import express from 'express';
-import { query } from '../db.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
+import { ok, created, badRequest } from '../utils/response.js';
+import { requireFields } from '../utils/validators.js';
+import { Topping } from '../models/index.js';
 
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const result = await query('SELECT topping_id, name, price FROM toppings  ORDER BY topping_id');
-    res.json(result.rows);
+    const toppings = await Topping.findAll({ attributes: ['topping_id', 'name', 'price'], order: [['topping_id', 'ASC']] });
+    ok(res, toppings);
   } catch (e) { next(e); }
 });
 
 router.post('/', authRequired, adminRequired, async (req, res, next) => {
   try {
     const { name, price } = req.body;
-    if (!name || !price) {
-      return res.status(400).json({ error: 'Name and price required' });
-    }
-    await query('INSERT INTO toppings(name, price) VALUES($1,$2)', [name, price]);
-    res.status(201).json({ message: 'Created' });
+    requireFields(req.body, ['name']);
+    if (price === undefined) return next(badRequest('Price required'));
+    const t = await Topping.create({ name, price });
+    created(res, { message: 'Created', id: t.topping_id });
   } catch (e) { next(e); }
 });
 
 router.delete('/:id', authRequired, adminRequired, async (req, res, next) => {
   try {
-    await query('DELETE FROM toppings WHERE topping_id=$1', [req.params.id]);
-    res.json({ message: 'Deleted' });
+    const id = req.params.id;
+    const deleted = await Topping.destroy({ where: { topping_id: id } });
+    ok(res, { message: deleted ? 'Deleted' : 'No change' });
   } catch (e) { next(e); }
 });
 

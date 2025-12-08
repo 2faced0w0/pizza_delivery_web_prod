@@ -3,10 +3,13 @@ DEVELOPMENT_AND_DEployment_GUIDE.md
 backend/node_modules/
 frontend/node_modules/
 .env
-backend/scripts/schema.sql
-backend/scripts/seed.sql
 BUILD.md
 DEPLOYMENT.md
 backend/.env.example
 RENDER_DEPLOYMENT.md
-temp/DOCKER_DEPLOYMENT.md
+temp/
+pizza-gh-pages/
+deploy.sh
+deploy.bat
+docker-compose.yml
+README.md

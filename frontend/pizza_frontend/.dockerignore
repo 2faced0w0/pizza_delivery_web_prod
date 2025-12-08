@@ -1,0 +1,31 @@
+# Exclude dev and VCS files from Docker context
+.git/
+.gitignore
+
+# Dependencies and builds
+node_modules/
+dist/
+dist-ssr/
+coverage/
+
+# Env and local config
+.env*
+*.local
+
+# Editor/OS
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Tests and misc
+__tests__/
+*.map
+README.md
+*.md
+
+# Caches
+.eslintcache
+.turbo/
+.parcel-cache/
+.next/
+.cache/
