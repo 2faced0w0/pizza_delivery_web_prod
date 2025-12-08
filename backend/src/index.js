@@ -1,9 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config.js';
-import { db } from './db.js';
+import { initORM } from './orm/sequelize.js';
 import authRoutes from './routes/auth.js';
 import pizzaRoutes from './routes/pizzas.js';
 import toppingsRoutes from './routes/toppings.js';
@@ -47,8 +48,9 @@ const start = async () => {
     console.log('Environment:', config.nodeEnv);
     console.log('Attempting to connect to database...');
     console.log('DB URL (masked):', config.dbUrl.replace(/:[^:@]+@/, ':****@'));
-    await db.connect();
-    console.log('DB connected successfully');
+    // Initialize ORM (Sequelize)
+    await initORM();
+    console.log('ORM initialized successfully');
     app.listen(config.port, () => console.log(`Backend listening on ${config.port}`));
   } catch (err) {
     console.error('Startup error', err);

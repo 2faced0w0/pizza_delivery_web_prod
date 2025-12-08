@@ -1,5 +1,6 @@
 import express from 'express';
-import { query } from '../db.js';
+import { Pizza } from '../models/index.js';
+import { ok, created, notFound, badRequest } from '../utils/response.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
 
 
@@ -8,48 +9,50 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
   try {
-    const result = await query('SELECT pizza_id, name, description, category, price_regular, price_medium, price_large, img_url FROM pizzas ORDER BY pizza_id');
-    res.json(result.rows);
+    const pizzas = await Pizza.findAll({
+      attributes: ['pizza_id', 'name', 'description', 'category', 'price_regular', 'price_medium', 'price_large', 'img_url'],
+      order: [['pizza_id', 'ASC']],
+    });
+    ok(res, pizzas);
   } catch (e) { next(e); }
 });
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const result = await query('SELECT pizza_id, name, description, category, price_regular, price_medium, price_large, img_url FROM pizzas WHERE pizza_id=$1', [req.params.id]);
-    if (result.rowCount === 0) return res.status(404).json({ error: 'Not found' });
-    res.json(result.rows[0]);
+    const pizza = await Pizza.findByPk(req.params.id, {
+      attributes: ['pizza_id', 'name', 'description', 'category', 'price_regular', 'price_medium', 'price_large', 'img_url'],
+    });
+    if (!pizza) return next(notFound('Pizza not found'));
+    ok(res, pizza);
   } catch (e) { next(e); }
 });
 
 router.post('/', authRequired, adminRequired, async (req, res, next) => {
   try {
     const { name, description, category, price_regular, price_medium, price_large, img_url } = req.body;
-    if (!name || !category || !price_regular || !price_medium || !price_large) {
-      return res.status(400).json({ error: 'Name, category, and all three prices required' });
+    if (!name || !category || price_regular == null || price_medium == null || price_large == null) {
+      return next(badRequest('Name, category, and all three prices required'));
     }
-    await query(
-      'INSERT INTO pizzas(name, description, category, price_regular, price_medium, price_large, img_url) VALUES($1,$2,$3,$4,$5,$6,$7)', 
-      [name, description || '', category, price_regular, price_medium, price_large, img_url || '']
-    );
-    res.status(201).json({ message: 'Created' });
+    const createdPizza = await Pizza.create({ name, description, category, price_regular, price_medium, price_large, img_url });
+    created(res, { id: createdPizza.pizza_id });
   } catch (e) { next(e); }
 });
 
 router.patch('/:id', authRequired, adminRequired, async (req, res, next) => {
   try {
-    const { name, description, category, price_regular, price_medium, price_large, img_url } = req.body;
-    await query(
-      'UPDATE pizzas SET name=COALESCE($2,name), description=COALESCE($3,description), category=COALESCE($4,category), price_regular=COALESCE($5,price_regular), price_medium=COALESCE($6,price_medium), price_large=COALESCE($7,price_large), img_url=COALESCE($8,img_url) WHERE pizza_id=$1', 
-      [req.params.id, name, description, category, price_regular, price_medium, price_large, img_url]
-    );
-    res.json({ message: 'Updated' });
+    const pizza = await Pizza.findByPk(req.params.id);
+    if (!pizza) return next(notFound('Pizza not found'));
+    await pizza.update(req.body);
+    ok(res, { message: 'Updated' });
   } catch (e) { next(e); }
 });
 
 router.delete('/:id', authRequired, adminRequired, async (req, res, next) => {
   try {
-    await query('DELETE FROM pizzas WHERE pizza_id=$1', [req.params.id]);
-    res.json({ message: 'Deleted' });
+    const pizza = await Pizza.findByPk(req.params.id);
+    if (!pizza) return next(notFound('Pizza not found'));
+    await pizza.destroy();
+    ok(res, { message: 'Deleted' });
   } catch (e) { next(e); }
 });
 

@@ -1,172 +1,166 @@
 import express from 'express';
-import { query } from '../db.js';
 import { authRequired, adminRequired } from '../middleware/auth.js';
-import { calculatePrice } from '../utils/pricing.js';
+import { ok, created, badRequest } from '../utils/response.js';
+import { isArrayNonEmpty, requireFields } from '../utils/validators.js';
+import { Order, OrderItem, OrderItemTopping, Pizza, Topping } from '../models/index.js';
 
 const router = express.Router();
 
 router.get('/pending', authRequired, adminRequired, async (req, res, next) => {
   try {
-    // Fetch pending orders with items and toppings
-    const ordersResult = await query(
-      `SELECT o.id, o.user_id, o.status, o.total_amount, o.address_text, o.created_at, o.updated_at
-       FROM orders o
-       WHERE o.status = 'pending'
-       ORDER BY o.created_at ASC`
-    );
+    const orders = await Order.findAll({
+      where: { status: 'pending' },
+      order: [['created_at', 'ASC']],
+      attributes: ['id', 'user_id', 'status', 'total_amount', 'address_text', 'created_at', 'updated_at'],
+      include: [{
+        model: OrderItem,
+        attributes: ['id', 'pizza_id', 'size', 'crust', 'quantity', 'unit_price'],
+        include: [
+          { model: Pizza, attributes: ['name'] },
+          { model: Topping, attributes: ['name'], through: { attributes: [] } }
+        ]
+      }]
+    });
 
-    const orders = ordersResult.rows;
+    const shaped = orders.map(o => ({
+      id: o.id,
+      user_id: o.user_id,
+      status: o.status,
+      total_amount: o.total_amount,
+      address_text: o.address_text,
+      created_at: o.created_at,
+      updated_at: o.updated_at,
+      items: (o.order_items || []).map(oi => ({
+        id: oi.id,
+        pizza_id: oi.pizza_id,
+        pizza_name: oi.pizza?.name,
+        size: oi.size,
+        crust: oi.crust,
+        quantity: oi.quantity,
+        unit_price: oi.unit_price,
+        toppings: (oi.toppings || []).map(t => t.name)
+      }))
+    }));
 
-    // Fetch order items for each order
-    for (const order of orders) {
-      const itemsResult = await query(
-        `SELECT oi.id, oi.pizza_id, p.name as pizza_name, oi.size, oi.crust, 
-                oi.quantity, oi.unit_price
-         FROM order_items oi
-         JOIN pizzas p ON oi.pizza_id = p.pizza_id
-         WHERE oi.order_id = $1`,
-        [order.id]
-      );
-
-      order.items = itemsResult.rows;
-
-      // Fetch toppings for each item
-      for (const item of order.items) {
-        const toppingsResult = await query(
-          `SELECT t.name
-           FROM order_item_toppings oit
-           JOIN toppings t ON oit.topping_id = t.topping_id
-           WHERE oit.order_item_id = $1`,
-          [item.id]
-        );
-        item.toppings = toppingsResult.rows.map(t => t.name);
-      }
-    }
-
-    res.json(orders);
-  } catch (e) { 
+    ok(res, shaped);
+  } catch (e) {
     console.error('Error fetching pending orders:', e);
-    next(e); 
+    next(e);
   }
 });
 
 router.get('/my-orders', authRequired, async (req, res, next) => {
   try {
-    // Fetch orders with items and toppings
-    const ordersResult = await query(
-      `SELECT o.id, o.status, o.total_amount, o.address_text, o.created_at, o.updated_at
-       FROM orders o
-       WHERE o.user_id = $1
-       ORDER BY o.created_at DESC`,
-      [req.user.id]
-    );
+    const orders = await Order.findAll({
+      where: { user_id: req.user.id },
+      order: [['created_at', 'DESC']],
+      attributes: ['id', 'status', 'total_amount', 'address_text', 'created_at', 'updated_at'],
+      include: [{
+        model: OrderItem,
+        attributes: ['id', 'pizza_id', 'size', 'crust', 'quantity', 'unit_price'],
+        include: [
+          { model: Pizza, attributes: ['name'] },
+          { model: Topping, attributes: ['name'], through: { attributes: [] } }
+        ]
+      }]
+    });
 
-    const orders = ordersResult.rows;
+    const shaped = orders.map(o => ({
+      id: o.id,
+      status: o.status,
+      total_amount: o.total_amount,
+      address_text: o.address_text,
+      created_at: o.created_at,
+      updated_at: o.updated_at,
+      items: (o.order_items || []).map(oi => ({
+        id: oi.id,
+        pizza_id: oi.pizza_id,
+        pizza_name: oi.pizza?.name,
+        size: oi.size,
+        crust: oi.crust,
+        quantity: oi.quantity,
+        unit_price: oi.unit_price,
+        toppings: (oi.toppings || []).map(t => t.name)
+      }))
+    }));
 
-    // Fetch order items for each order
-    for (const order of orders) {
-      const itemsResult = await query(
-        `SELECT oi.id, oi.pizza_id, p.name as pizza_name, oi.size, oi.crust, 
-                oi.quantity, oi.unit_price
-         FROM order_items oi
-         JOIN pizzas p ON oi.pizza_id = p.pizza_id
-         WHERE oi.order_id = $1`,
-        [order.id]
-      );
-
-      order.items = itemsResult.rows;
-
-      // Fetch toppings for each item
-      for (const item of order.items) {
-        const toppingsResult = await query(
-          `SELECT t.name
-           FROM order_item_toppings oit
-           JOIN toppings t ON oit.topping_id = t.topping_id
-           WHERE oit.order_item_id = $1`,
-          [item.id]
-        );
-        item.toppings = toppingsResult.rows.map(t => t.name);
-      }
-    }
-
-    res.json(orders);
-  } catch (e) { 
+    ok(res, shaped);
+  } catch (e) {
     console.error('Error fetching user orders:', e);
-    next(e); 
+    next(e);
   }
 });
 
 router.get('/', authRequired, async (req, res, next) => {
   try {
-    const result = await query('SELECT id, status, total_amount, created_at FROM orders WHERE user_id=$1 ORDER BY created_at DESC', [req.user.id]);
-    res.json(result.rows);
+    const orders = await Order.findAll({ where: { user_id: req.user.id }, attributes: ['id', 'status', 'total_amount', 'created_at'], order: [['created_at', 'DESC']] });
+    ok(res, orders);
   } catch (e) { next(e); }
 });
 
 router.get('/:id', authRequired, async (req, res, next) => {
   try {
-    const result = await query('SELECT id, status, total_amount, created_at, updated_at FROM orders WHERE id=$1 AND (user_id=$2 OR $3=TRUE)', [req.params.id, req.user.id, req.user.role === 'admin']);
-    if (result.rowCount === 0) return res.status(404).json({ error: 'Not found' });
-    res.json(result.rows[0]);
+    const isAdmin = req.user.role === 'admin';
+    const order = await Order.findOne({
+      where: isAdmin ? { id: req.params.id } : { id: req.params.id, user_id: req.user.id },
+      attributes: ['id', 'status', 'total_amount', 'created_at', 'updated_at']
+    });
+    if (!order) return next(Object.assign(new Error('Not found'), { status: 404, publicMessage: 'Not found' }));
+    ok(res, order);
   } catch (e) { next(e); }
 });
 
 router.post('/', authRequired, async (req, res, next) => {
   try {
-    const { items, address_text, phone, total_amount } = req.body;
-    
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: 'Items required' });
-    }
+    const { items, address_text } = req.body;
+    isArrayNonEmpty(items, 'items');
+    requireFields({ address_text }, ['address_text']);
 
-    if (!address_text || !address_text.trim()) {
-      return res.status(400).json({ error: 'Delivery address required' });
-    }
+    const order = await Order.create({ user_id: req.user.id, status: 'pending', total_amount: 0, address_text, created_at: new Date(), updated_at: new Date() });
 
-    // Create the order with status 'pending'
-    const orderRes = await query(
-      `INSERT INTO orders(user_id, status, total_amount, address_text, created_at, updated_at) 
-       VALUES($1, $2, $3, $4, NOW(), NOW()) 
-       RETURNING id`,
-      [req.user.id, 'pending', total_amount || 0, address_text]
-    );
+    let computedTotal = 0;
 
-    const orderId = orderRes.rows[0].id;
-
-    // Insert order items and their toppings
     for (const item of items) {
-      const { pizza_id, size, crust, quantity, unit_price, toppings } = item;
+      const { pizza_id, size, crust, quantity, toppings } = item;
+      if (!pizza_id) return next(badRequest('pizza_id required'));
 
-      // Insert order item
-      const itemRes = await query(
-        `INSERT INTO order_items(order_id, pizza_id, size, crust, quantity, unit_price) 
-         VALUES($1, $2, $3, $4, $5, $6) 
-         RETURNING id`,
-        [orderId, pizza_id, size, crust, quantity || 1, unit_price]
-      );
+      const pizza = await Pizza.findByPk(pizza_id, { attributes: ['pizza_id', 'price_regular', 'price_medium', 'price_large'] });
+      if (!pizza) return next(badRequest('Pizza not found'));
 
-      const itemId = itemRes.rows[0].id;
+      // Normalize size to our price fields
+      const normalizedSize = (size === 'medium' || size === 'large') ? size : 'regular';
+      const basePrice = normalizedSize === 'regular' ? Number(pizza.price_regular)
+        : normalizedSize === 'medium' ? Number(pizza.price_medium)
+        : Number(pizza.price_large);
 
-      // Insert toppings for this item
-      if (toppings && Array.isArray(toppings) && toppings.length > 0) {
+      let toppingsSum = 0;
+      if (Array.isArray(toppings) && toppings.length > 0) {
+        const toppingRows = await Topping.findAll({
+          where: { topping_id: toppings },
+          attributes: ['topping_id', 'price']
+        });
+        toppingsSum = toppingRows.reduce((sum, t) => sum + Number(t.price || 0), 0);
+      }
+
+      const unit_price = Number((basePrice + toppingsSum).toFixed(2));
+      const qty = Number(quantity || 1);
+      computedTotal += unit_price * qty;
+
+      const oi = await OrderItem.create({ order_id: order.id, pizza_id, size: normalizedSize, crust, quantity: qty, unit_price });
+      if (Array.isArray(toppings) && toppings.length > 0) {
         for (const toppingId of toppings) {
-          await query(
-            `INSERT INTO order_item_toppings(order_item_id, topping_id) 
-             VALUES($1, $2)`,
-            [itemId, toppingId]
-          );
+          await OrderItemTopping.create({ order_item_id: oi.id, topping_id: toppingId });
         }
       }
     }
 
-    res.status(201).json({ 
-      id: orderId, 
-      total: total_amount,
-      message: 'Order placed successfully' 
-    });
-  } catch (e) { 
+    // Update order total
+    await Order.update({ total_amount: Number(computedTotal.toFixed(2)), updated_at: new Date() }, { where: { id: order.id } });
+
+    created(res, { id: order.id, total: Number(computedTotal.toFixed(2)), message: 'Order placed successfully' });
+  } catch (e) {
     console.error('Error creating order:', e);
-    next(e); 
+    next(e);
   }
 });
 
@@ -174,9 +168,9 @@ router.patch('/:id/status', authRequired, adminRequired, async (req, res, next) 
   try {
     const { status } = req.body;
     const allowed = ['pending', 'confirmed', 'preparing', 'baking', 'out_for_delivery', 'delivered', 'cancelled'];
-    if (!allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
-    await query('UPDATE orders SET status=$2, updated_at=NOW() WHERE id=$1', [req.params.id, status]);
-    res.json({ message: 'Status updated' });
+    if (!allowed.includes(status)) badRequest('Invalid status');
+    await Order.update({ status, updated_at: new Date() }, { where: { id: req.params.id } });
+    ok(res, { message: 'Status updated' });
   } catch (e) { next(e); }
 });
 

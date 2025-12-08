@@ -1,3 +1,26 @@
+## Frontend Docker Deployment
+
+- Build the image:
+
+```
+docker build -t pizza-frontend:latest ./frontend/pizza_frontend
+```
+
+- Run the container on port 8080:
+
+```
+docker run -d --name pizza-frontend -p 8080:80 pizza-frontend:latest
+```
+
+- Open the app: http://localhost:8080
+
+- Stop and remove:
+
+```
+docker stop pizza-frontend
+docker rm pizza-frontend
+```
+
 # Pizza Delivery Web (MVP)
 
 deployed @ https://pizza-delivery-web-prod.onrender.com/
@@ -88,4 +111,6 @@ Open <http://localhost:5173>
 
 ## Pricing
 Calculated server-side using size multiplier + toppings.
+
+"create a version branch, a rollback checkpoint and commit and push all code to main branch with commit message "frontend revamped! Update details posted under README.md"
 
